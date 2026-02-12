@@ -238,6 +238,12 @@ class AggsTest < Minitest::Test
     assert_equal ({2 => 2}), buckets_as_hash(Product.search("Product").where(color: "red").aggs(store_id: {where: {in_stock: false}}).smart_aggs(false).aggs["store_id"])
   end
 
+  def test_relation_with_where_chain
+    aggs = Product.search("Product").where(store_id: [1,2,3]).where(color: "red").aggs(color: {}).aggs
+
+    assert_equal ({"red" => 1, "green" => 1, "blue" => 1}), buckets_as_hash(aggs["color"])
+  end
+
   protected
 
   def search_aggregate_by_day_with_time_zone(query, time_zone = '-8:00')
